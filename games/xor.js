@@ -28,13 +28,24 @@ const SCREEN_HEIGHT = 224;
 /**
  * R=0-5, G=0-5, B=0-5
  */
- function generateRadialPalette() {
+function generateRadialPalette() {
+    const BITS = 6;
     let colors = [];
     let n = 0;
-    for (let r = 0; r < 6; r++) {
-        for (let g = 0; g < 6; g++) {
-            for (let b = 0; b < 6; b++) {
-                colors[n++] = [ 255 * r / 6.0, 255 * g / 6.0, 255 * b / 6.0 ];
+    for (let r = 0; r < BITS; r++) {
+        for (let g = 0; g < BITS; g++) {
+            for (let b = 0; b < BITS; b++) {
+                let rr = r * 255 / (BITS - 1);
+                let gg = g * 255 / (BITS - 1);
+                let bb = b * 255 / (BITS - 1);
+
+                let mid = (rr * 30 + gg * 59 + bb * 11) / 100;
+
+                let r1 = ~~(((rr + mid * 1) / 2) * 230 / 255 + 10);
+                let g1 = ~~(((gg + mid * 1) / 2) * 230 / 255 + 10);
+                let b1 = ~~(((bb + mid * 1) / 2) * 230 / 255 + 10);
+
+                colors[n++] = [ r1, g1, b1 ];
             }
         }
     }
