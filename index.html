@@ -26,13 +26,15 @@
         No sound or input, but it has a render and update loop.
         The big technical challenge here was being able to set a virtual resolution
         and palette, along with fullscreen capability.  Making the canvas fill the
-        screen kept leading to smeared pixels from smooth scaling.  The solution I
-        found was to first render to a framebuffer, then present that framebuffer
-        to the canvas.  The palette and image data are merged together in a fragment shader.
+        screen kept leading to smeared pixels due to unwanted smooth scaling.  I like my
+        pixels jagged.  The solution I found was to first render to a framebuffer, then
+        present that framebuffer to the canvas.  The palette and image data are merged
+        together in a fragment shader.
     </p>
 
     <h3>Sources</h3>
     <ul>
+        <li><a href='https://github.com/treytomes/treytomes.github.io/blob/main/games/xor.js'>Source code for the demo.</a></li>
         <li><a href='https://stackoverflow.com/questions/19695658/emulating-palette-based-graphics-in-webgl-v-s-canvas-2d'>Emulating palette based graphics in WebGL v.s. Canvas 2D</a></li>
         <li><a href='https://webgl2fundamentals.org/webgl/lessons/webgl-qna-how-to-get-pixelize-effect-in-webgl-.html'>How to get pixelize effect in webgl?</a></li>
     </ul>
