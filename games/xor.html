@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang='en'>
+<head>
+    <title>2D Retro Game Framework</title>
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+        #toolbar {
+            height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='toolbar'>
+        <a href='../index.html'>Home</a> |
+        <a href='#' onclick='openFullscreen(canvas);'>Toggle Fullscreen</a>
+    </div>
+
+    <div id='content'>
+        <canvas id='canvas'>
+            Your browser doesn't support canvas.
+        </canvas>
+    </div>
+
+    <script src="https://twgljs.org/dist/3.x/twgl-full.min.js"></script>
+
+    <script src='framework/helper.js'></script>
+
+    <script src='xor.js' type='module'></script>
+</body>
+</html>
