@@ -18,10 +18,10 @@ a:visited {
 canvas {
     display: block;
     position: absolute;
-    top: 24px;
+    top: 32px;
     left: 0;
     right: 0;
     bottom: 0;
     width: 100%;
-    height: calc(100% - 24px);
+    height: calc(100% - 32px);
 }
