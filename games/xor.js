@@ -1,16 +1,3 @@
-// View here: http://localhost/games/framework/
-
-// TODO: Remove needed functions from this: https://github.com/greggman/twgl.js
-
-// This was helpful: https://webgl2fundamentals.org/webgl/lessons/webgl-qna-how-to-get-pixelize-effect-in-webgl-.html
-
-/*
-TODO:
-http://marcgg.com/blog/2016/11/21/chiptune-sequencer-multiplayer/
-http://marcgg.com/blog/2016/11/01/javascript-audio/
-https://webglfundamentals.org/
-*/
-
 import {
     PALETTE_SIZE, loadPalette,
     getPixel, setPixel,
