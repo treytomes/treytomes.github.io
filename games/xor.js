@@ -76,8 +76,6 @@ function onUpdateFrame(time) {
 }
 
 function onRenderFrame(time) {
-    onUpdate(time);
-
     beginRender(time);
     onRender();
     endRender();
