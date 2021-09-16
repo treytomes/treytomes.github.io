@@ -78,7 +78,7 @@ function onUpdateFrame(time) {
 function onRenderFrame(time) {
     onUpdate(time);
 
-    beginRender();
+    beginRender(time);
     onRender();
     endRender();
     requestAnimationFrame(onRenderFrame);
