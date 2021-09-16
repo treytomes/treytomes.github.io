@@ -351,7 +351,7 @@ function presentFrameBuffer(time) {
     twgl.setUniforms(canvasShader, {
         u_matrix: m,
         u_texture: renderTexture,
-        u_time: time * 0.001
+        u_time: time * 0.0001
     });
     // calls gl.drawArrays or gl.drawElements
     twgl.drawBufferInfo(gl, quadBufferInfo);
