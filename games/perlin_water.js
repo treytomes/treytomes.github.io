@@ -335,16 +335,18 @@ function onUpdate(time) {
 function onRender(time) {
     for (let x = 0; x < SCREEN_WIDTH; x++) {
         for (let y = 0; y < SCREEN_HEIGHT; y++) {
-
             let size = 32;
             let px = x / SCREEN_WIDTH * size;
             let py = y / SCREEN_HEIGHT * size;
 
-            let pz = 0.8;
-            let r = Math.floor(PerlinNoise.noise(px + step, py, pz) * 5);
-            let g = Math.floor(PerlinNoise.noise(px - step, py - step, pz) * 5);
-            let b = Math.floor(PerlinNoise.noise(px, py + step, pz) * 5);
+            let pz = step;
+            let v1 = Math.floor(PerlinNoise.noise(px + step, py, pz) * 5);
+            let v2 = Math.floor(PerlinNoise.noise(px - step, py - step, pz) * 5);
+            let v3 = Math.floor(PerlinNoise.noise(px, py + step, pz) * 5);
 
+            let r = 1; // v1 * 0.5 + v2 * 0.1 + v3 * 0.1;
+            let g = v1 * 0.4 + v2 * 0.3 + v3 * 0.1;
+            let b = v1 * 0.1 + v2 * 0.4 + v3 * 0.5;
 
             setPixel(x, y, r * 36 + g * 6 + b);
         }
