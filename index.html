@@ -15,6 +15,7 @@
         <li><a href='#but_why'>But why?</a></li>
         <li><a href='#xor'>XOR</a></li>
         <li><a href='#sin_plasma'>Sinusoidal Plasma</a></li>
+        <li><a href='#perlin_water'>Perlin Water</a></li>
         <li><a href='#donate'>Donate</a></li>
     </ul>
 </div>
@@ -93,6 +94,31 @@
     <h3>Sources</h3>
     <ul>
         <li><a href='https://github.com/treytomes/treytomes.github.io/blob/main/games/sin_plasma.js'>Source code for the demo.</a></li>
+    </ul>
+</div>
+
+<h2><a id='perlin_water'>Perlin Water</a></h2>
+<div>
+    <a href='games/perlin_water.html'>Take a look!</a>
+
+    <p>
+        This project was an exercise in how something can be mathematically correct and yet still wrong.
+        I went through 3 different Perlin Noise algorithms before I finally found one that works
+        efficiently in JavaScript.  The 1st algorithm is one I've used successfully for years,
+        but just doesn't work here.  It think the problem has something to do with how JavaScript
+        encodes floating-point number.  The 2nd algorithm worked great, aside from the fact that
+        it was too slow to actually be usable for anything.  Combining the first 2 algorithms kinda
+        worked, but I still had those weird floating-point errors.  The 3rd algorithm is one that
+        I found one a page targetting Lua and JavaScript solutions to the Perlin noise problem,
+        and was designed to be efficient more than correct.  Check out the source if you're
+        interested; I left all 3 algorithms in place so you can experience my pain with me.
+    </p>
+
+    <h3>Sources</h3>
+    <ul>
+        <li><a href='https://github.com/treytomes/treytomes.github.io/blob/main/games/perlin_water.js'>Source code for the demo.</a></li>
+        <li><a href='http://cs.nyu.edu/~perlin/noise/'>Improved Noise reference implementation</a></li>
+        <li><a href='http://asserttrue.blogspot.com/2011/12/perlin-noise-in-javascript_31.html'>Perlin Noise in JavaScript</a></li>
     </ul>
 </div>
 

@@ -1,6 +1,3 @@
-// Source: http://asserttrue.blogspot.com/2011/12/perlin-noise-in-javascript_31.html
-// Java source: http://cs.nyu.edu/~perlin/noise/
-
 import {
     PALETTE_SIZE, loadPalette,
     getPixel, setPixel,
