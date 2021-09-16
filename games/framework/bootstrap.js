@@ -150,9 +150,11 @@ function loadRenderShader() {
             vec4 color = texture2D(u_palette, vec2((index + 0.5) / 256.0, 0.5));
 
             // Scanlines
+            /*
             color -= abs(sin(pos.y * 100.0 + u_time * 5.0)) * 0.08; // (1)
             color -= abs(sin(pos.y * 300.0 - u_time * 10.0)) * 0.05; // (2)
             color.a = 1.0;
+            */
             
             if (pos.x > 1.0 || pos.x < 0.0 || pos.y > 1.0 || pos.y < 0.0) {
                 gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); // black
@@ -191,8 +193,18 @@ function loadCanvasShader() {
         precision mediump float;
         varying vec2 v_texcoord;
         uniform sampler2D u_texture;
+        uniform float u_time;
+
         void main() {
-            gl_FragColor = texture2D(u_texture, v_texcoord);
+            vec2 pos = v_texcoord;
+            vec4 color = texture2D(u_texture, v_texcoord);
+
+            // Scanlines
+            color -= abs(sin(pos.y * 100.0 + u_time * 5.0)) * 0.08; // (1)
+            color -= abs(sin(pos.y * 300.0 - u_time * 10.0)) * 0.05; // (2)
+            color.a = 1.0;
+
+            gl_FragColor = color;
         }
     `;
 
@@ -307,7 +319,7 @@ function refreshFrameBuffer() {
 /**
  * Render the framebuffer to the canvas.
  */
-function presentFrameBuffer() {
+function presentFrameBuffer(time) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -339,6 +351,7 @@ function presentFrameBuffer() {
     twgl.setUniforms(canvasShader, {
         u_matrix: m,
         u_texture: renderTexture,
+        u_time: time * 0.001
     });
     // calls gl.drawArrays or gl.drawElements
     twgl.drawBufferInfo(gl, quadBufferInfo);
@@ -376,10 +389,10 @@ function beginRender(time) {
     gl.uniform1f(timeLoc, time * 0.001);
 }
 
-function endRender() {
+function endRender(time) {
     refreshRenderImage();
     refreshFrameBuffer();
-    presentFrameBuffer();
+    presentFrameBuffer(time);
 }
 
 export {
