@@ -5,14 +5,19 @@ html, body {
     background: black;
     color: greenyellow;
     font-family: 'Consolas';
+    font-size: 16px;
 }
 
-a:link {
-    color: yellow;
+h1 {
+    font-size: 16px;
+    font-weight: bold;
+    color: lightgreen;
 }
 
-a:visited {
-    color: orange;
+sub {
+    font-size: 16px;
+    font-weight: normal;
+    color: #00FF00;
 }
 
 canvas {
@@ -24,4 +29,38 @@ canvas {
     bottom: 0;
     width: 100%;
     height: calc(100% - 32px);
+}
+
+h2 {
+    font-size: 16px;
+    font-weight: bold;
+    color: lightgreen;
+}
+
+h3 {
+    font-size: 16px;
+    font-weight: bold;
+    color: lightgreen;
+}
+
+p {
+    font-size: 16px;
+    font-weight: normal;
+    color: #00FF00;
+}
+
+a:link {
+    font-size: 16px;
+    font-weight: normal;
+    color: yellow;
+}
+
+a:visited {
+    font-size: 16px;
+    font-weight: normal;
+    color: brown;
+}
+
+#toolbar {
+    height: 32px;
 }
