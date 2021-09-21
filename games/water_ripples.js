@@ -3,7 +3,7 @@ import {
 } from './framework/bootstrap.js';
 
 import { MoreMath } from './framework/MoreMath.js';
-import { generatePalette } from './framework/greyscalePalette.js';
+import { generatePalette, getColor } from './framework/radialPalette.js';
 
 const DROP_HEIGHT = 16;
 const DROP_RADIUS = 8;
@@ -147,7 +147,8 @@ class WaterRipplesGameCanvas extends GameCanvas {
                     if (alpha < 0) alpha = 0;
                     if (alpha > 255) alpha = 254;
     
-                    setPixel(x + xOffset, y + yOffset, alpha);
+                    let c = (alpha / 255) * 5;
+                    setPixel(x + xOffset, y + yOffset, getColor(c, c, c));
                 }
             }
         }
