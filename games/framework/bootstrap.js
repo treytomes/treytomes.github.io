@@ -53,6 +53,24 @@ const FRAMEBUFFER_POSITIONS = [
     1, -1,
 ];
 
+class GameCanvas {
+    constructor(canvas = null) {
+        this.canvas = canvas ?? document.querySelector('canvas');
+
+        // Standard SNES resolution.
+        this.screenWidth = 256;
+        this.screenHeight = 224;
+    }
+
+    onInit() {}
+    onMouseDown(x, y, buttons) {}
+    onMouseUp(x, y, buttons) {}
+    onMouseMove(x, y, buttons) {}
+    onUpdate(time) {}
+    onRender(time) {}
+}
+
+let _instance = null;
 let gl = null;
 let renderImage = null;  // The image representing our scren.
 let canvasShader = null;
@@ -63,9 +81,6 @@ let depthBuffer = null;
 let fb = null;
 let paletteTex = null;
 let imageTex = null;
-
-let _screenWidth = 320; // null;
-let _screenHeight = 240; //null;
 
 /**
  * Generate the quad buffer for rendering the image data to the framebuffer.
@@ -79,10 +94,10 @@ function initializeQuadBuffer() {
  * Make a pixel texture to match the requested screen size.
  */
 function initializeRenderTexture() {
-    renderImage = new Uint8Array(_screenWidth * _screenHeight);
+    renderImage = new Uint8Array(_instance.screenWidth * _instance.screenHeight);
     renderTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, renderTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, _screenWidth, _screenHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, _instance.screenWidth, _instance.screenHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -98,7 +113,7 @@ function initializeRenderTexture() {
 function initializeDepthBuffer() {
     depthBuffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, _screenWidth, _screenHeight);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, _instance.screenWidth, _instance.screenHeight);
 }
 
 /**
@@ -270,7 +285,7 @@ function loadPalette(colors) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, _screenWidth, _screenHeight, 0, gl.ALPHA, gl.UNSIGNED_BYTE, renderImage);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, _instance.screenWidth, _instance.screenHeight, 0, gl.ALPHA, gl.UNSIGNED_BYTE, renderImage);
 }
 
 /**
@@ -281,7 +296,7 @@ function loadPalette(colors) {
  * @returns {number} The palette index at the given position.
  */
  function getPixel(x, y) {
-    return renderImage[y * _screenWidth + x];
+    return renderImage[y * _instance.screenWidth + x];
 }
 
 /**
@@ -292,7 +307,22 @@ function loadPalette(colors) {
  * @param {number} color 
  */
 function setPixel(x, y, color) {
-    renderImage[y * _screenWidth + x] = color;
+    x = Math.floor(x);
+    y = Math.floor(y);
+    color = Math.floor(color);
+    if (color < 0) color = 0;
+    if (color > 255) color = 255;
+
+    renderImage[y * _instance.screenWidth + x] = color;
+}
+
+/**
+ * Clear the image buffer to a color.
+ * 
+ * @param {number} color 
+ */
+function clearScreen(color) {
+    renderImage = renderImage.fill(color);
 }
 
 /**
@@ -301,7 +331,7 @@ function setPixel(x, y, color) {
  function refreshRenderImage() {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, imageTex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, _screenWidth, _screenHeight, 0, gl.ALPHA, gl.UNSIGNED_BYTE, renderImage);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, _instance.screenWidth, _instance.screenHeight, 0, gl.ALPHA, gl.UNSIGNED_BYTE, renderImage);
 }
 
 /**
@@ -330,11 +360,11 @@ function presentFrameBuffer(time) {
     if (displayWidth > displayHeight) {
         // Most of the time the monitor will be horizontal.
         drawHeight = displayHeight;
-        drawWidth = _screenWidth * drawHeight / _screenHeight;
+        drawWidth = _instance.screenWidth * drawHeight / _instance.screenHeight;
     } else {
         // Sometimes the monitor will be vertical.
         drawWidth = displayWidth;
-        drawHeight = _screenHeight * drawWidth / _screenWidth;
+        drawHeight = _instance.screenHeight * drawWidth / _instance.screenWidth;
     }
     const m = twgl.m4.ortho(0, gl.canvas.clientWidth, 0, gl.canvas.clientHeight, -1, 1);
     twgl.m4.translate(m, [
@@ -357,11 +387,85 @@ function presentFrameBuffer(time) {
     twgl.drawBufferInfo(gl, quadBufferInfo);
 }
 
-function initialize(screenWidth, screenHeight) {
-    gl = document.querySelector("canvas").getContext("webgl");
+/**
+ * Prepare the screen for rendering.
+ * 
+ * @param {number} time How much time has passed, in milliseconds, since the start.
+ */
+function beginRender(time) {
+    twgl.resizeCanvasToDisplaySize(gl.canvas);
+    // this makes WebGL render to the texture and depthBuffer
+    // all draw calls will render there instead of the canvas
+    // until we bind something else.
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.viewport(0, 0, _instance.screenWidth, _instance.screenHeight);
+    
+    gl.useProgram(renderShader.program);
+    let timeLoc = gl.getUniformLocation(renderShader.program, "u_time");
+    gl.uniform1f(timeLoc, time * 0.001);
+}
 
-    _screenWidth = screenWidth;
-    _screenHeight = screenHeight;
+/**
+ * Present the completed image data to the screen.
+ * 
+ * @param {number} time How much time has passed, in milliseconds, since the start.
+ */
+function endRender(time) {
+    refreshRenderImage();
+    refreshFrameBuffer();
+    presentFrameBuffer(time);
+}
+
+/**
+ * Convert canvas coordinates into virtual screen coordinates.
+ * 
+ * @param {number} x 
+ * @param {number} y 
+ * @returns An object with the converted x and y properties.
+ */
+function convertPosition(x, y) {
+    const rect = _instance.canvas.getBoundingClientRect();
+
+    const displayWidth = _instance.canvas.clientWidth;
+    const displayHeight = _instance.canvas.clientHeight;
+    let drawWidth = 0;
+    let drawHeight = 0;
+    if (displayWidth > displayHeight) {
+        // Most of the time the monitor will be horizontal.
+        drawHeight = displayHeight;
+        drawWidth = _instance.screenWidth * drawHeight / _instance.screenHeight;
+    } else {
+        // Sometimes the monitor will be vertical.
+        drawWidth = displayWidth;
+        drawHeight = _instance.screenHeight * drawWidth / _instance.screenWidth;
+    }
+
+    rect.x += (displayWidth - drawWidth) / 2;
+    rect.y += (displayHeight - drawHeight) / 2;
+    rect.width = drawWidth;
+    rect.height = drawHeight;
+
+    const newX = Math.floor((x - rect.left) / rect.width * _instance.screenWidth);
+    const newY = Math.floor((y - rect.top) / rect.height * _instance.screenHeight);
+
+    return { x: newX, y: newY };
+}
+
+function onUpdateFrame(time) {
+    _instance.onUpdate(time);
+    requestAnimationFrame(onUpdateFrame);
+}
+
+function onRenderFrame(time) {
+    beginRender(time);
+    _instance.onRender();
+    endRender(time);
+    requestAnimationFrame(onRenderFrame);
+}
+
+function initialize(gameInstance) {
+    _instance = gameInstance;
+    gl = canvas.getContext('webgl');
 
     loadCanvasShader();
     loadRenderShader();
@@ -374,30 +478,31 @@ function initialize(screenWidth, screenHeight) {
 
     initializePalette();
     initializeRenderImage();
-}
 
-function beginRender(time) {
-    twgl.resizeCanvasToDisplaySize(gl.canvas);
-    // this makes WebGL render to the texture and depthBuffer
-    // all draw calls will render there instead of the canvas
-    // until we bind something else.
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-    gl.viewport(0, 0, _screenWidth, _screenHeight);
-    
-    gl.useProgram(renderShader.program);
-    let timeLoc = gl.getUniformLocation(renderShader.program, "u_time");
-    gl.uniform1f(timeLoc, time * 0.001);
-}
+    _instance.canvas.addEventListener('mousedown', function(e) {
+        const pos = convertPosition(e.clientX, e.clientY);
+        _instance.onMouseDown(pos.x, pos.y, e.buttons);
+    });
 
-function endRender(time) {
-    refreshRenderImage();
-    refreshFrameBuffer();
-    presentFrameBuffer(time);
+    _instance.canvas.addEventListener('mouseup', function(e) {
+        const pos = convertPosition(e.clientX, e.clientY);
+        _instance.onMouseUp(pos.x, pos.y, e.buttons);
+    });
+
+    _instance.canvas.addEventListener('mousemove', function(e) {
+        const pos = convertPosition(e.clientX, e.clientY);
+        _instance.onMouseMove(pos.x, pos.y, e.buttons);
+    });
+
+    _instance.onInit();
+    requestAnimationFrame(onRenderFrame);
+    requestAnimationFrame(onUpdateFrame);
 }
 
 export {
-    PALETTE_SIZE, gl,
+    PALETTE_SIZE, GameCanvas,
     setPalette, loadPalette,
-    getPixel, setPixel,
-    initialize, beginRender, endRender
+    clearScreen, getPixel, setPixel,
+    initialize, beginRender, endRender,
+    convertPosition
 };
