@@ -82,6 +82,60 @@ let fb = null;
 let paletteTex = null;
 let imageTex = null;
 
+function hsv2rgb(hue, saturation, brightness) {
+    if (hue < 0) hue = 0;
+    if (saturation < 0) saturation = 0;
+    if (brightness < 0) brightness = 0;
+
+    if (hue > 1) hue = 1;
+    if (saturation > 1) saturation = 1;
+    if (brightness > 1) brightness = 1;
+
+    if (0 == saturation) {
+        brightness = Math.floor(brightness * 255);
+        return [brightness, brightness, brightness];
+    }
+
+    let fMax = 0;
+    let fMid = 0;
+    let fMin = 0;
+
+    if (0.5 < brightness) {
+        fMax = brightness - (brightness * saturation) + saturation;
+        fMin = brightness + (brightness * saturation) - saturation;
+    } else {
+        fMax = brightness + (brightness * saturation);
+        fMin = brightness - (brightness * saturation);
+    }
+
+    let iSextant = Math.floor(hue / 60);
+    if (300 <= hue) {
+        hue -= 360;
+    }
+    hue /= 60;
+    hue -= 2 * Math.floor(((iSextant + 1) % 6) / 2.0);
+    if (0 == (iSextant % 2)) {
+        fMid = hue * (fMax - fMin) + fMin;
+    } else {
+        fMid = fMin - hue * (fMax - fMin);
+    }
+
+    switch (iSextant) {
+        case 1:
+            return [fMid, fMax, fMin];
+        case 2:
+            return [fMin, fMax, fMid];
+        case 3:
+            return [fMin, fMid, fMax];
+        case 4:
+            return [fMid, fMin, fMax];
+        case 5:
+            return [fMax, fMin, fMid];
+        default:
+            return [fMax, fMid, fMin];
+    }
+}
+
 /**
  * Generate the quad buffer for rendering the image data to the framebuffer.
  */
@@ -501,7 +555,7 @@ function initialize(gameInstance) {
 
 export {
     PALETTE_SIZE, GameCanvas,
-    setPalette, loadPalette,
+    setPalette, loadPalette, hsv2rgb,
     clearScreen, getPixel, setPixel,
     initialize, beginRender, endRender,
     convertPosition
