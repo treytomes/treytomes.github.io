@@ -1,16 +1,10 @@
 import {
-    PALETTE_SIZE, loadPalette,
-    getPixel, setPixel,
+    GameCanvas, getPixel, setPixel,
     beginRender, endRender,
     initialize
 } from './framework/bootstrap.js';
 
-//const SCREEN_WIDTH = 320;
-//const SCREEN_HEIGHT = 240;
-
-// Standard SNES resolution.
-const SCREEN_WIDTH = 256;
-const SCREEN_HEIGHT = 224;
+import { generatePalette, getColor } from './framework/radialPalette.js';
 
 class PerlinTerrainGenerator {
 	constructor(persistence = 0, frequency = 0, amplitude = 0, octaves = 0, randomSeed = 0) {
@@ -286,89 +280,52 @@ let PerlinNoise = new function() {
     function scale(n) { return (1 + n)/2; }
 }
 
-/**
- * R=0-5, G=0-5, B=0-5
- */
-function generateRadialPalette() {
-    const BITS = 6;
-    let colors = [];
-    let n = 0;
-    for (let r = 0; r < BITS; r++) {
-        for (let g = 0; g < BITS; g++) {
-            for (let b = 0; b < BITS; b++) {
-                let rr = r * 255 / (BITS - 1);
-                let gg = g * 255 / (BITS - 1);
-                let bb = b * 255 / (BITS - 1);
+class PerlinWaterGameCanvas extends GameCanvas {
+    constructor() {
+        super();
+        this.step = 0;
+    }
 
-                let mid = (rr * 30 + gg * 59 + bb * 11) / 100;
-
-                let r1 = ~~(((rr + mid * 1) / 2) * 230 / 255 + 10);
-                let g1 = ~~(((gg + mid * 1) / 2) * 230 / 255 + 10);
-                let b1 = ~~(((bb + mid * 1) / 2) * 230 / 255 + 10);
-
-                colors[n++] = [ r1, g1, b1 ];
+    onInit() {
+        generatePalette();
+    }
+    
+    /**
+     * 
+     * @param {number} time Total elapsed milliseconds.
+     */
+    onUpdate(time) {
+        this.step = time / 1024;
+    }
+    
+    /**
+     * 
+     * @param {number} time Total elapsed milliseconds.
+     */
+    onRender(time) {
+        for (let x = 0; x < this.screenWidth; x++) {
+            for (let y = 0; y < this.screenHeight; y++) {
+                let size = 32;
+                let px = x / this.screenWidth * size;
+                let py = y / this.screenHeight * size;
+    
+                let pz = this.step;
+                let v1 = Math.floor(PerlinNoise.noise(px + this.step, py, pz) * 5);
+                let v2 = Math.floor(PerlinNoise.noise(px - this.step, py - this.step, pz) * 5);
+                let v3 = Math.floor(PerlinNoise.noise(px, py + this.step, pz) * 5);
+    
+                let r = 1; // v1 * 0.5 + v2 * 0.1 + v3 * 0.1;
+                let g = v1 * 0.4 + v2 * 0.3 + v3 * 0.1;
+                let b = v1 * 0.1 + v2 * 0.4 + v3 * 0.5;
+    
+                setPixel(x, y, getColor(r, g, b));
             }
         }
     }
-    loadPalette(colors);
-}
-
-function onInit() {
-    generateRadialPalette();
-}
-
-/**
- * 
- * @param {number} time Total elapsed milliseconds.
- */
-function onUpdate(time) {
-    step = time / 1024;
-}
-
-/**
- * 
- * @param {number} time Total elapsed milliseconds.
- */
-function onRender(time) {
-    for (let x = 0; x < SCREEN_WIDTH; x++) {
-        for (let y = 0; y < SCREEN_HEIGHT; y++) {
-            let size = 32;
-            let px = x / SCREEN_WIDTH * size;
-            let py = y / SCREEN_HEIGHT * size;
-
-            let pz = step;
-            let v1 = Math.floor(PerlinNoise.noise(px + step, py, pz) * 5);
-            let v2 = Math.floor(PerlinNoise.noise(px - step, py - step, pz) * 5);
-            let v3 = Math.floor(PerlinNoise.noise(px, py + step, pz) * 5);
-
-            let r = 1; // v1 * 0.5 + v2 * 0.1 + v3 * 0.1;
-            let g = v1 * 0.4 + v2 * 0.3 + v3 * 0.1;
-            let b = v1 * 0.1 + v2 * 0.4 + v3 * 0.5;
-
-            setPixel(x, y, r * 36 + g * 6 + b);
-        }
-    }
-}
-
-function onUpdateFrame(time) {
-    onUpdate(time);
-    requestAnimationFrame(onUpdateFrame);
-}
-
-function onRenderFrame(time) {
-    beginRender(time);
-    onRender();
-    endRender(time);
-    requestAnimationFrame(onRenderFrame);
 }
 
 function onWindowLoad() {
-    initialize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    onInit();
-    requestAnimationFrame(onRenderFrame);
-    requestAnimationFrame(onUpdateFrame);
+    initialize(new PerlinWaterGameCanvas());
 }
 
 window.addEventListener("load", onWindowLoad, false);
-
-let step = 0;
