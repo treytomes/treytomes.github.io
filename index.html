@@ -16,6 +16,7 @@
         <li><a href='#xor'>XOR</a></li>
         <li><a href='#sin_plasma'>Sinusoidal Plasma</a></li>
         <li><a href='#perlin_water'>Perlin Water</a></li>
+        <li><a href='#water_ripples'>Water Ripples</a></li>
         <li><a href='#donate'>Donate</a></li>
     </ul>
 </div>
@@ -119,6 +120,43 @@
         <li><a href='https://github.com/treytomes/treytomes.github.io/blob/main/games/perlin_water.js'>Source code for the demo.</a></li>
         <li><a href='http://cs.nyu.edu/~perlin/noise/'>Improved Noise reference implementation</a></li>
         <li><a href='http://asserttrue.blogspot.com/2011/12/perlin-noise-in-javascript_31.html'>Perlin Noise in JavaScript</a></li>
+    </ul>
+</div>
+
+<h2><a id='water_ripples'>Water Ripples</a></h2>
+<div>
+    <a href='games/water_ripples.html'>Take a look!</a>
+
+    <p>
+        Finally, an example with some interaction!  When you load up this demo you will see
+        a black screen.  Switch to fullscreen and try clicking or pressing somewhere on the screen,
+        and you should get water ripples coming out of wherever you touch.
+    </p>
+
+    <p>
+        The hardest part of this project was probably dealing with the floating-point errors.
+        If you look around line 117 in the JavaScript you will see that I finally took anything
+        really small and chopped it down to 0.  Without that a really annoying static field would
+        build around the perimeter of the screen.
+    </p>
+
+    <p>
+        The mouse interaction was interesting.  I added a convertPosition function to bootstrap.js
+        that uses the same viewport equations as the GL code to convert a real screen position
+        into a virtual screen position, and if you scan further down you can see in the
+        initialize function where I attach to the canvas event handlers.
+    </p>
+
+    <p>
+        I've converted all of my previous demos to base themselves on the new GameCanvas class.
+        The GameCanvas class can take an optional HTML5 canvas as a parameter; if this is null
+        it'll just grab the first canvas it finds.  It also makes it simple to set the
+        screenWidth and screenHeight to whatever size you want.
+    </p>
+
+    <h3>Sources</h3>
+    <ul>
+        <li><a href='https://github.com/treytomes/treytomes.github.io/blob/main/games/water_ripples.js'>Source code for the demo.</a></li>
     </ul>
 </div>
 
