@@ -1,7 +1,5 @@
 import {
-    GameCanvas, getPixel, setPixel,
-    beginRender, endRender,
-    initialize
+    GameCanvas, getPixel, setPixel, initialize
 } from './framework/bootstrap.js';
 
 import { generatePalette, getColor } from './framework/radialPalette.js';
