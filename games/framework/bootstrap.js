@@ -550,18 +550,11 @@ function initialize(gameInstance) {
 
     _instance.canvas.addEventListener('touchstart', function(e) {
         mousePos = getTouchPos(canvas, e);
-        // TODO: Fire a mouse event for each touch.
-        const touch = e.touches[0];
-        /*
-        const mouseEvent = new MouseEvent("mousedown", {
-            buttons: 1,
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
-        canvas.dispatchEvent(mouseEvent);
-        */
-        const pos = convertPosition(touch.clientX, touch.clientY);
-        _instance.onMouseMove(pos.x, pos.y, 1);
+        for (let n = 0; n < e.touches.length; n++) {
+            const touch = e.touches[n];
+            const pos = convertPosition(touch.clientX, touch.clientY);
+            _instance.onMouseMove(pos.x, pos.y, 1);
+        }
     });
 
     _instance.canvas.addEventListener('touchend', function(e) {
@@ -571,17 +564,11 @@ function initialize(gameInstance) {
     });
 
     _instance.canvas.addEventListener('touchmove', function(e) {
-        const touch = e.touches[0];
-        /*
-        const mouseEvent = new MouseEvent("mousemove", {
-            buttons: 1,
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
-        canvas.dispatchEvent(mouseEvent);
-        */
-        const pos = convertPosition(touch.clientX, touch.clientY);
-        _instance.onMouseMove(pos.x, pos.y, 1);
+        for (let n = 0; n < e.touches.length; n++) {
+            const touch = e.touches[n];
+            const pos = convertPosition(touch.clientX, touch.clientY);
+            _instance.onMouseMove(pos.x, pos.y, 1);
+        }
     });
 
     _instance.onInit();
