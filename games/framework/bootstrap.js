@@ -567,7 +567,7 @@ function initialize(gameInstance) {
     _instance.canvas.addEventListener('touchend', function(e) {
         //const mouseEvent = new MouseEvent("mouseup", {});
         //canvas.dispatchEvent(mouseEvent);
-        alert(JSON.stringify(e));
+        _instance.onMouseUp(null, null, 1);
     });
 
     _instance.canvas.addEventListener('touchmove', function(e) {
