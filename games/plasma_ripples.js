@@ -1,18 +1,18 @@
 import {
-    GameCanvas, clearScreen, setPixel, initialize
+    GameCanvas,  getPixel, setPixel, initialize, hsv2rgb, clearScreen
 } from './framework/bootstrap.js';
 
-import { MoreMath } from './framework/MoreMath.js';
 import { generatePalette, getColor } from './framework/radialPalette.js';
+import { PerlinNoise } from './framework/PerlinNoise.js';
+import { MoreMath } from './framework/MoreMath.js';
 
-const DROP_HEIGHT = 16;
+const DROP_HEIGHT = 64;
 const DROP_RADIUS = 8;
 const DAMPING_FACTOR = 128; // 16;
 const DROP_SPEED = 300;
 const ENABLE_DROPS = false;
 
-class WaterRipplesGameCanvas extends GameCanvas {
-
+class PlasmaRipplesGameCanvas extends GameCanvas {
     constructor() {
         super();
         
@@ -24,6 +24,8 @@ class WaterRipplesGameCanvas extends GameCanvas {
         this.waves0 = new Float64Array(this.screenWidth * this.screenHeight);
         this.waves1 = new Float64Array(this.screenWidth * this.screenHeight);
         this.activeBuffer = 0;
+
+        this.step = 0;
     }
 
     getWaveValue(bufferIndex, x, y) {
@@ -66,6 +68,34 @@ class WaterRipplesGameCanvas extends GameCanvas {
         }
     }
     
+    plasma_small(x, y, t) {
+        let v1 = Math.sin(x * 10 + t);
+    
+        let v2 = Math.sin(10 * (x * Math.sin(t / 2) + y * Math.cos(t / 3)) + t);
+    
+        let cx = x + 0.5 * Math.sin(t / 5);
+        let cy = y + 0.5 * Math.cos(t / 3);
+        let v3 = Math.sin(Math.sqrt(100 * (cx * cx + cy * cy) + 1) + t);
+    
+        let v_average = ((v1 + v2 + v3) / 3 + 1) / 2;
+    
+        return Math.sin(v_average * 15 * Math.PI);
+    }
+    
+    plasma_big(x, y, t)  {
+        let v1 = Math.sin(x * 10 + t);
+    
+        let v2 = Math.sin(10 * (x * Math.sin(t / 2) + y * Math.cos(t / 3)) + t);
+    
+        let cx = x + 0.5 * Math.sin(t / 5);
+        let cy = y + 0.5 * Math.cos(t / 3);
+        let v3 = Math.sin(Math.sqrt(100 * (cx * cx + cy * cy) + 1) + t);
+    
+        let v_average = ((v1 + v2 + v3) / 3 + 1) / 2;
+    
+        return Math.sin(v_average * 5 * Math.PI);
+    }
+
     onInit() {
         generatePalette();
     }
@@ -87,6 +117,8 @@ class WaterRipplesGameCanvas extends GameCanvas {
      * @param {number} time Total elapsed milliseconds.
      */
     onUpdate(time) {
+        this.step = time / 1024;
+
         if (ENABLE_DROPS) {
             if (time - this.lastDropTime >= DROP_SPEED) {
                 this.lastDropTime = time;
@@ -132,30 +164,36 @@ class WaterRipplesGameCanvas extends GameCanvas {
      * @param {number} time Total elapsed milliseconds.
      */
     onRender(time) {
-        clearScreen(0);
-    
         for (let x = 0; x < this.screenWidth; x++) {
             for (let y = 0; y < this.screenHeight; y++) {
-                // This gives us the effect of water breaking the light.
+                // Adding the wave offset to the color calculation
+                // gives us the effect of water breaking the light.
+
                 let xOffset = (this.getWaveValue(this.activeBuffer, x - 1, y) - this.getWaveValue(this.activeBuffer, x + 1, y)) / 8;
                 let yOffset = (this.getWaveValue(this.activeBuffer, x, y - 1) - this.getWaveValue(this.activeBuffer, x, y + 1)) / 8;
+                
+                let px = -1.0 + 2 * ((x + xOffset) / this.screenWidth);
+                let py = -1.0 + 2 * ((y + yOffset) / this.screenHeight);
     
-                if ((xOffset != 0) || (yOffset != 0)) {
-                    // Generate alpha.
-                    let alpha = 200 - xOffset;
-                    if (alpha < 0) alpha = 0;
-                    if (alpha > 255) alpha = 254;
+                let v_big = this.plasma_big(px, py, this.step);
+                let v_small = this.plasma_small(px, py, this.step / 4);
     
-                    let c = (alpha / 255) * 5;
-                    setPixel(x + xOffset, y + yOffset, getColor(c, c, c));
-                }
+                let h = 0.25 * (Math.sin(v_big / 2 + v_small) + 1);
+                let s = 0.5 * (Math.sin(v_small) + 1);
+                let v = ((Math.sin(v_big) + 1) / 2) * 0.125;
+    
+                let color = hsv2rgb(h, s, v);
+                let r = color[0] * 5;
+                let g = color[1] * 5;
+                let b = color[2] * 5;
+                setPixel(x, y, getColor(r, g, b));
             }
         }
     }
 }
 
 function onWindowLoad() {
-    initialize(new WaterRipplesGameCanvas());
+    initialize(new PlasmaRipplesGameCanvas());
 }
 
-window.addEventListener('load', onWindowLoad, false);
+window.addEventListener("load", onWindowLoad, false);

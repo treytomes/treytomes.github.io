@@ -558,8 +558,6 @@ function initialize(gameInstance) {
     });
 
     _instance.canvas.addEventListener('touchend', function(e) {
-        //const mouseEvent = new MouseEvent("mouseup", {});
-        //canvas.dispatchEvent(mouseEvent);
         _instance.onMouseUp(null, null, 1);
     });
 

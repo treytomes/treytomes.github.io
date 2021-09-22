@@ -49,9 +49,9 @@ function getColor(r, g = null, b = null) {
         b = (r % 10);
         return r * 36 + g * 6 + b;
     } else {
-        r = Math.floor(r);
-        g = Math.floor(g);
-        b = Math.floor(b);
+        //r = Math.floor(r);
+        //g = Math.floor(g);
+        //b = Math.floor(b);
         return r * 36 + g * 6 + b;
     }
 }
