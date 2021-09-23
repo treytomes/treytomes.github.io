@@ -256,6 +256,7 @@ function loadCanvasShader() {
         void main() {
             gl_Position = u_matrix * position;
             v_texcoord = texcoord;
+            
         }
     `;
     const FRAGMENT_SHADER = `
@@ -579,5 +580,7 @@ export {
     setPalette, loadPalette, hsv2rgb,
     clearScreen, getPixel, setPixel,
     initialize, beginRender, endRender,
-    convertPosition
+    convertPosition,
+
+    gl, FRAMEBUFFER_POSITIONS
 };
