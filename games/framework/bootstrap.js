@@ -513,7 +513,7 @@ function onUpdateFrame(time) {
 
 function onRenderFrame(time) {
     beginRender(time);
-    _instance.onRender();
+    _instance.onRender(time);
     endRender(time);
     requestAnimationFrame(onRenderFrame);
 }
