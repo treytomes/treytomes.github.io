@@ -18,6 +18,7 @@
         <li><a href='#perlin_water'>Perlin Water</a></li>
         <li><a href='#water_ripples'>Water Ripples</a></li>
         <li><a href='#plasma_ripples'>Plasma Ripples</a></li>
+        <li><a href='#conway_life_4K'>Conway's Game of Life 4K</a></li>
         <li><a href='#donate'>Donate</a></li>
     </ul>
 </div>
@@ -180,6 +181,35 @@
     <h3>Sources</h3>
     <ul>
         <li><a href='https://github.com/treytomes/treytomes.github.io/blob/main/games/plasma_ripples.js'>Source code for the demo.</a></li>
+    </ul>
+</div>
+
+<h2><a id='conway_life_4K'>Conway's Game of Life 4K</a></h2>
+<div>
+    <a href='games/conway_life_4K.html'>Take a look!</a>
+
+    <p>
+        I was inspired a bit by the Ant and Slime demo on the Coding Adventures YouTube channel.
+        In this example I wrote a version of Conway's Game of Life that is executed completely
+        in shaders.  In this case I have 2 shaders where the output of one feeds into the input
+        of the other.  The cells are split so that each color channel represents a simulation
+        that doesn't directly interact with the others.  I added a fade effect so that dead
+        cells slowly go to black instead of immediately turning off that I am pretty happy with.
+    </p>
+
+    <p>
+        Because it runs completely in shaders I'm able to get good performance at a really
+        high resolution.  Eventually the simulation will run to a standstill and you'll
+        need to refresh your browser.
+    </p>
+
+    <p>
+        I'll probably come back to this one later.
+    </p>
+
+    <h3>Sources</h3>
+    <ul>
+        <li><a href='https://github.com/treytomes/treytomes.github.io/blob/main/games/conway_life_4k.js'>Source code for the demo.</a></li>
     </ul>
 </div>
 
