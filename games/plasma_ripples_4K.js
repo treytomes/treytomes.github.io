@@ -51,16 +51,20 @@ function initializeQuadBuffer() {
 
 function loadCanvasShader() {
     const VERTEX_SHADER = `
+        precision mediump float;
+
         attribute vec4 position;
         attribute vec2 texcoord;
 
         uniform mat4 u_matrix;
 
         varying vec2 v_texcoord;
+        uniform float u_time;
 
         void main() {
             gl_Position = u_matrix * position;
-            v_texcoord = texcoord;
+            v_texcoord = texcoord - vec2(0.5, 0.5);
+            v_texcoord = v_texcoord * 8.0 * sin(u_time / 2.0);
         }
     `;
     const FRAGMENT_SHADER = `
@@ -106,14 +110,14 @@ function loadCanvasShader() {
         }
     
         void main() {
-            float v_big = plasma_big(v_texcoord.x, v_texcoord.y, u_time);
-            float v_small = plasma_small(v_texcoord.x, v_texcoord.y, u_time);
+            float v_big = plasma_big(v_texcoord.x, v_texcoord.y, u_time / 2.0);
+            float v_small = plasma_small(v_texcoord.x, v_texcoord.y, u_time * 2.0);
 
-            float h = 0.25 * (sin(v_big / 2.0 + v_small) + 1.0);
-            float s = 0.5 * (sin(v_small) + 1.0);
-            float v = ((sin(v_big) + 1.0) / 2.0); // * 0.125;
+            float h = 0.25 * cos(u_time) * (sin(v_big / 2.0 + v_small) + 1.0);
+            float v = sin(u_time) + 0.5 * (sin(v_small) + 1.0);
+            float s = -sin(u_time) + ((sin(v_big) + 1.0) / 2.0) * 2.0; // * 0.125;
 
-            gl_FragColor = vec4(hsv2rgb(vec3(h, s, v)), 1).rgba;
+            gl_FragColor = vec4(hsv2rgb(vec3(h, s, v)), h).rgba;
         }
 
     `;
@@ -216,8 +220,8 @@ class PlasmaRipplesGameCanvas extends GameCanvas {
     constructor() {
         super();
         
-        //this.screenWidth = 640;
-        //this.screenHeight = 480;
+        this.screenWidth = 640;
+        this.screenHeight = 480;
 
         this.lastDropTime = 0;
         

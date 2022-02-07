@@ -380,7 +380,7 @@ class ConwaysLifeGameCanvas extends GameCanvas {
         const FRAGMENT_SHADER = `
             precision mediump float;
 
-            #define FADE 0.95
+            #define FADE 0.99
 
             varying vec2 v_texcoord;
             uniform sampler2D u_buffer;
